@@ -1,5 +1,5 @@
 /*
- * puertoplayer
+ * acabplayer
  *
  * a nighttime composition in opensource
  *
@@ -119,7 +119,7 @@ struct image_info hertie_images[] =
                     <<16)|(    1  \
                     <<24))
 
-#define ACAB_PUERTO_IP    (   83  \
+#define ACAB_ACAB_IP    (   83  \
                          |(  133  \
                     << 8)|(  178  \
                     <<16)|(    4  \
@@ -137,11 +137,11 @@ int mode = 0; /* 0: play local argv[1] file
 	       * 1: connect live to gigargoyle @ puerto giesing
 	       */
 
-#define PUERTO_X 24
-#define PUERTO_Y 4
+#define ACAB_X 24
+#define ACAB_Y 4
 
-uint8_t frame[ 1 * PUERTO_X * PUERTO_Y * 3];
-uint8_t buf  [ 2 * PUERTO_X * PUERTO_Y * 3];
+uint8_t frame[ 1 * ACAB_X * ACAB_Y * 3];
+uint8_t buf  [ 2 * ACAB_X * ACAB_Y * 3];
 uint8_t *pbuf;
 
 SDL_Event e;
@@ -159,14 +159,14 @@ void refresh_frame(void)
 	pixel.w = hertie_images[HERTIE_IMAGE].win_x;
 	pixel.h = hertie_images[HERTIE_IMAGE].win_y;
 
-	for (ix=0; ix < PUERTO_X; ix++)
+	for (ix=0; ix < ACAB_X; ix++)
 	{
 		if (hertie_images[HERTIE_IMAGE].stride_x_mod)
 			if (!(ix % hertie_images[HERTIE_IMAGE].stride_x_mod))
 				off_x += hertie_images[HERTIE_IMAGE].stride_x;
 
 		pixel.x = pixel.w * ix + off_x;
-		for (iy=0; iy < PUERTO_Y; iy++)
+		for (iy=0; iy < ACAB_Y; iy++)
 		{
 			if (hertie_images[HERTIE_IMAGE].stride_y_mod)
 				if (!(iy % hertie_images[HERTIE_IMAGE].stride_y_mod))
@@ -177,9 +177,9 @@ void refresh_frame(void)
 			             &pixel,
 			             SDL_MapRGB(
 			                        s->format,
-			                        frame[(ix + iy * PUERTO_X) * 3 + 0],
-			                        frame[(ix + iy * PUERTO_X) * 3 + 1],
-			                        frame[(ix + iy * PUERTO_X) * 3 + 2]
+			                        frame[(ix + iy * ACAB_X) * 3 + 0],
+			                        frame[(ix + iy * ACAB_X) * 3 + 1],
+			                        frame[(ix + iy * ACAB_X) * 3 + 2]
 			                       )
 			            );
 		}
@@ -237,7 +237,7 @@ int main(int argc, char ** argv)
 
 	int in;
 
-	acab_ip = ACAB_PUERTO_IP;
+	acab_ip = ACAB_ACAB_IP;
 	if (argv[1])
 		if (!strncmp(argv[1], "--localhost", 11))
 		{
@@ -266,7 +266,7 @@ int main(int argc, char ** argv)
 		exit(1);
 	}
 
-	SDL_WM_SetCaption( "puertoplayer - ACAB - all colours are beautiful", "ACAB" );
+	SDL_WM_SetCaption( "acabplayer - ACAB - all colours are beautiful", "ACAB" );
 	SDL_WM_SetIcon(icon, NULL);
 
 	SDL_BlitSurface(p, 0, s, 0);
@@ -282,7 +282,7 @@ int main(int argc, char ** argv)
 
 	while ( retries-- > 0)
 	{
-		ret = read(in, pbuf, PUERTO_X * PUERTO_Y * 3);
+		ret = read(in, pbuf, ACAB_X * ACAB_Y * 3);
 		if (ret < 0)
 		{
 			printf("ERROR: exiting: %s\n", strerror(errno));
@@ -290,13 +290,13 @@ int main(int argc, char ** argv)
 		}
 		pbuf += ret;
 
-		if (pbuf >= buf + PUERTO_X * PUERTO_Y * 3)
+		if (pbuf >= buf + ACAB_X * ACAB_Y * 3)
 		{
 			retries = 23;
-			memcpy(frame, buf, PUERTO_X * PUERTO_Y * 3);
+			memcpy(frame, buf, ACAB_X * ACAB_Y * 3);
 
-			memmove(buf, &buf[PUERTO_X * PUERTO_Y * 3], PUERTO_X * PUERTO_Y * 3);
-			pbuf -= PUERTO_X * PUERTO_Y * 3;
+			memmove(buf, &buf[ACAB_X * ACAB_Y * 3], ACAB_X * ACAB_Y * 3);
+			pbuf -= ACAB_X * ACAB_Y * 3;
 
 			refresh_frame();
 			if (!mode)
