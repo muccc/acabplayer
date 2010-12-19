@@ -119,12 +119,6 @@ struct image_info hertie_images[] =
                     <<16)|(    1  \
                     <<24))
 
-#define ACAB_ACAB_IP    (   83  \
-                         |(  133  \
-                    << 8)|(  178  \
-                    <<16)|(    4  \
-                    <<24))
-
 uint32_t acab_ip;
 
 int a; /* socket to acab */
@@ -137,8 +131,8 @@ int mode = 0; /* 0: play local argv[1] file
 	       * 1: connect live to gigargoyle @ puerto giesing
 	       */
 
-#define ACAB_X 24
-#define ACAB_Y 4
+#define ACAB_X 16
+#define ACAB_Y 6
 
 uint8_t frame[ 1 * ACAB_X * ACAB_Y * 3];
 uint8_t buf  [ 2 * ACAB_X * ACAB_Y * 3];
@@ -159,15 +153,13 @@ void refresh_frame(void)
 	pixel.w = hertie_images[HERTIE_IMAGE].win_x;
 	pixel.h = hertie_images[HERTIE_IMAGE].win_y;
 
-	for (ix=0; ix < ACAB_X; ix++)
-	{
+	for (ix=0; ix < ACAB_X; ix++) {
 		if (hertie_images[HERTIE_IMAGE].stride_x_mod)
 			if (!(ix % hertie_images[HERTIE_IMAGE].stride_x_mod))
 				off_x += hertie_images[HERTIE_IMAGE].stride_x;
 
 		pixel.x = pixel.w * ix + off_x;
-		for (iy=0; iy < ACAB_Y; iy++)
-		{
+		for (iy=0; iy < ACAB_Y; iy++) {
 			if (hertie_images[HERTIE_IMAGE].stride_y_mod)
 				if (!(iy % hertie_images[HERTIE_IMAGE].stride_y_mod))
 					off_y += hertie_images[HERTIE_IMAGE].stride_y;
@@ -190,16 +182,13 @@ void refresh_frame(void)
 
 void load_hertie_giesing(void)
 {
-	p = IMG_Load(hertie_images[HERTIE_IMAGE].fname);
-	if (!p)
-	{
+	if (!(p = IMG_Load(hertie_images[HERTIE_IMAGE].fname))) {
 		printf("ERROR: IMG_Load(%s): %s\n",
 		      hertie_images[HERTIE_IMAGE].fname, SDL_GetError());
 		exit(1);
 	}
-	icon = IMG_Load(ICON_LOVE);
-	if (!icon)
-	{
+
+	if (!(icon = IMG_Load(ICON_LOVE))) {
 		printf("ERROR: IMG_Load(%s): %s\n",
 		      ICON_LOVE, SDL_GetError());
 		exit(1);
@@ -210,20 +199,20 @@ void init_socket(void)
 {
 	int ret;
 	struct sockaddr_in sa;
+
 	a = socket(AF_INET, SOCK_STREAM, 0);
-	if (a < 0)
-	{
+	if (a < 0) {
 		printf("ERROR: connect(): %s\n", strerror(errno));
 		exit(1);
 	}
+
 	memset(&sa, 0, sizeof(sa));
 	sa.sin_family        = AF_INET;
 	sa.sin_port          = htons(ACAB_PORT);
 	sa.sin_addr.s_addr   = acab_ip;
 
 	ret = connect(a, (struct sockaddr *) &sa, sizeof(sa));
-	if (ret < 0)
-	{
+	if (ret < 0) {
 		printf("ERROR: connect(): %s\n", strerror(errno));
 		exit(1);
 	}
@@ -237,7 +226,7 @@ int main(int argc, char ** argv)
 
 	int in;
 
-	acab_ip = ACAB_ACAB_IP;
+	acab_ip = ACAB_LOCALHOST_IP;
 	if (argv[1])
 		if (!strncmp(argv[1], "--localhost", 11))
 		{
@@ -247,7 +236,7 @@ int main(int argc, char ** argv)
 
 	if (!mode && argv[1])
 		f = open(argv[1], O_RDONLY);
-	else{
+	else {
 		mode = 1;
 		init_socket();
 	}
@@ -261,12 +250,12 @@ int main(int argc, char ** argv)
 	        hertie_images[HERTIE_IMAGE].y,
 	        24, SDL_HWSURFACE | SDL_HWACCEL | SDL_ASYNCBLIT);
 
-	if (!s){
+	if (!s) {
 		printf("ERROR: couldn't SDL_SetVideoMode(): %s\n", SDL_GetError());
 		exit(1);
 	}
 
-	SDL_WM_SetCaption( "acabplayer - ACAB - all colours are beautiful", "ACAB" );
+	SDL_WM_SetCaption("acabplayer - ACAB - all colours are beautiful", "ACAB");
 	SDL_WM_SetIcon(icon, NULL);
 
 	SDL_BlitSurface(p, 0, s, 0);
@@ -280,7 +269,7 @@ int main(int argc, char ** argv)
 	int retries = 23;
 	pbuf = buf;
 
-	while ( retries-- > 0)
+	while (retries-- > 0)
 	{
 		ret = read(in, pbuf, ACAB_X * ACAB_Y * 3);
 		if (ret < 0)
@@ -302,7 +291,7 @@ int main(int argc, char ** argv)
 			if (!mode)
 				usleep(25000);
 		}
-		SDL_PollEvent( &e );
+		SDL_PollEvent(&e);
 		if (e.type == SDL_KEYDOWN)
 		{
 			if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -310,7 +299,7 @@ int main(int argc, char ** argv)
 			if (e.key.keysym.sym == SDLK_q)
 				exit(0);
 		}
-		if( e.type == SDL_QUIT )
+		if (e.type == SDL_QUIT)
 			exit(0);
 	}
 
