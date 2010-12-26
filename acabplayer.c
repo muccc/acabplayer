@@ -176,7 +176,7 @@ void refresh_frame(void)
 			            );
 		}
 	}
-	SDL_BlitSurface(p, 0, s, 0);
+	//SDL_BlitSurface(p, 0, s, 0);
 	SDL_Flip(s);
 }
 
